@@ -1,9 +1,10 @@
-const env = require('../.env')
+const env = require('./.env')
 const Telegraf = require('telegraf')
-const moment = require('moment')
 const Markup = require('telegraf/markup')
 const axios = require('axios')
 const bot = new Telegraf(env.token)
+
+const keyboard = Markup.keyboard(['BTC Bitstamp']).resize().extra()
 
 bot.start(async ctx => {
     const from = ctx.update.message.from
@@ -13,27 +14,37 @@ bot.start(async ctx => {
         return;
     }
 
-    await ctx.reply(`Ao seu dispor, mano loko!!, ${from.first_name}!\nO que vc quer hoje meu consagrado?`, 
-        Markup.keyboard('BTC Bitstamp').resize().extra())
+    await ctx.reply(`Ao seu dispor, mano loko!!, ${from.first_name}!\nO que vc quer hoje meu consagrado?`,
+       keyboard)
 })
 
 const controlBTC = {}
-controlBTC.value = 0 
+controlBTC.value = ''
 
 setInterval(async () => {
-    const res = await axios.get('https://www.bitstamp.net/api/ticker/')
-    if( controlBTC.value == /\d/.exec(/\d{3}[.]/.exec(res.data.last)[0])[0] ){
+    try{
+        const res  = await axios.get('https://www.bitstamp.net/api/ticker/')
+        const unit = /\d/.exec(/\d{3}[.]/.exec(res.data.last)[0])[0]
+
+        if( controlBTC.value == unit ){
+            return
+        }
+
+        bot.telegram.sendMessage(
+            env.id, 
+            `BTC Saiu da casa ${controlBTC.value} \n Agora está na casa dos ${unit}00: \n valor atual ${res.data.last}`,
+            keyboard
+        )
+
+        controlBTC.value = unit
+    } catch (error){
         return
     }
-
-    controlBTC.value = /\d/.exec(/\d{3}[.]/.exec(res.data.last)[0])[0]
-    bot.telegram.sendMessage(env.id, `Valor da última transação na Bitstamp: ${res.data.last}`)
 }, 5000)
 
 bot.hears('BTC Bitstamp', async ctx => {
-    console.log('oi')
     const res = await axios.get('https://www.bitstamp.net/api/ticker/')
-    ctx.reply(`Valor da última transação na Bitstamp: ${res.data.last}`)  
-}) 
+    ctx.reply(`Valor da última transação na Bitstamp: ${res.data.last}`, keyboard)
+})
 
 bot.startPolling()
