@@ -1,10 +1,15 @@
+'use strict'
+
 const env = require('./.env')
 const Telegraf = require('telegraf')
 const Markup = require('telegraf/markup')
 const axios = require('axios')
-const bot = new Telegraf(env.token)
+const Brazil = require( './brazil' )
 
-const keyboard = Markup.keyboard(['BTC Bitstamp']).resize().extra()
+const bot = new Telegraf(env.token)
+const brazil = new Brazil()
+
+const keyboard = Markup.keyboard([['BTC Bitstamp'], ['Brasil Exchanges']]).resize().extra()
 
 bot.start(async ctx => {
     const from = ctx.update.message.from
@@ -45,6 +50,21 @@ setInterval(async () => {
 bot.hears('BTC Bitstamp', async ctx => {
     const res = await axios.get('https://www.bitstamp.net/api/ticker/')
     ctx.reply(`Valor da última transação na Bitstamp: ${res.data.last}`, keyboard)
+})
+
+bot.hears('Brasil Exchanges', ctx => {
+    ctx.reply(`Valor da última transação na Bitstamp: ${brazil.exchanges}`, Markup.keyboard(brazil.exchanges).resize().extra())
+})
+
+bot.hears(brazil.exchanges, async ctx => {
+    try{
+        const res = await brazil.getBasicDataFromExchange(ctx.match)
+        ctx.replyWithHTML(`Ultimos Valores na Exchange ${ctx.match}: \n\n Compra: ${res.BuyPrice} \n Venda: ${res.SellPrice} \n Ultima Transação: <code>${res.Last}</code>\n Volume: ${res.Vol} \n <pre>Variação: ${res.LastVariation}% </pre>`
+            , Markup.keyboard(brazil.exchanges).resize().extra()
+        )
+    } catch (error){
+        ctx.reply(`A api da exchange ${ctx.match} está temporarimante indisponivel tente novamente mais tarde`)
+    }
 })
 
 bot.startPolling()
