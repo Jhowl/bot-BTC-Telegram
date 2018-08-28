@@ -1,6 +1,8 @@
 'use strict'
 
-const axios = require('axios')
+const axios  = require('axios')
+const Markup = require('telegraf/markup')
+
 class Brazil {
 
     constructor() {
@@ -33,6 +35,12 @@ class Brazil {
     async getBasicDataFromExchange(name) {
         const res = await axios.get(this.urlConsulta + '?exchange=' + name)
         return res.data
+    }
+
+    keyboardBrazilExchanges () {
+        const keys = this.exchanges.slice()
+        keys.push('< Voltar')
+        return Markup.keyboard(keys).resize().extra()
     }
 }
 
