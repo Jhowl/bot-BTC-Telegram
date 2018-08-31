@@ -9,6 +9,7 @@ const Brazil   = require( './brazil' )
 const bot    = new Telegraf(env.token)
 const brazil = new Brazil()
 
+
 const keyboardInitial = () => Markup.keyboard([['BTC Bitstamp'], ['Brasil Exchanges']]).resize().extra()
 
 bot.start(ctx => {
@@ -25,9 +26,8 @@ bot.start(ctx => {
     )
 })
 
-bot.hears('BTC Bitstamp', async ctx => {
-    const res = await axios.get('https://www.bitstamp.net/api/ticker/')
-    ctx.reply(`Valor da última transação na Bitstamp: ${res.data.last}`, keyboardInitial())
+bot.hears('BTC Bitstamp', ctx => {
+    ctx.reply(`Valor da última transação na Bitstamp: ${controlBTC.bitstamp.value}`, keyboardInitial())
 })
 
 bot.hears('Brasil Exchanges', ctx => {
@@ -52,28 +52,32 @@ bot.hears('< Voltar', ctx => {
     )
 })
 
+bot.startPolling()
+
 const controlBTC = {}
-controlBTC.value = ''
+controlBTC.bitstamp = {}
+controlBTC.bitstamp.unit = ''
 
 setInterval(async () => {
     try{
         const res  = await axios.get('https://www.bitstamp.net/api/ticker/')
         const unit = /\d/.exec(/\d{3}[.]/.exec(res.data.last)[0])[0]
+        
+        controlBTC.bitstamp.value = res.data.last
 
-        if( controlBTC.value == unit ){
+        if( controlBTC.bitstamp.unit == unit ){
             return
         }
 
         bot.telegram.sendMessage(
             env.id, 
-            `BTC Saiu da casa ${controlBTC.value}00 \n Agora está na casa dos ${unit}00: \n valor atual ${res.data.last}`,
+            `BTC Saiu da casa ${controlBTC.bitstamp.unit}00 \n Agora está na casa dos ${unit}00: \n valor atual ${res.data.last}`,
             keyboardInitial()
         )
 
-        controlBTC.value = unit
+        controlBTC.bitstamp.unit = unit
     } catch (error){
+        console.log('error')
         return
     }
-}, 5000)
-
-bot.startPolling()
+}, 4000)
