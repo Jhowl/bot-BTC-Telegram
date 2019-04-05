@@ -10,7 +10,7 @@ bot = new Robot();
 setInterval(async () => {
   try{
     const res  = await axios.get('https://www.bitstamp.net/api/ticker/')
-    const unit = /\d/.exec(/\d{1}[.]/.exec(res.data.last)[0])[0]
+    const unit = /\d/.exec(/\d{3}[.]/.exec(res.data.last)[0])[0]
 
     controlBTC.bitstamp.value = res.data.last
 
