@@ -25,7 +25,7 @@ class Bot {
   }
 
   sendMessages (message) {
-    telegram.sendMessage(
+    telegram.telegram.sendMessage(
       env.id,
       message,
       this.keyboardInitial()
