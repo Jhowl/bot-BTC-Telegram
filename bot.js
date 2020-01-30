@@ -3,14 +3,14 @@
 const env      = require('./.env')
 const Telegraf = require('telegraf')
 const Markup   = require('telegraf/markup')
-const Brazil   = require( './brazil' )
+const brazil   = require( './brazil' )
 
 const telegram = new Telegraf(env.token)
-const brazil = new Brazil()
 
 class Bot {
   constructor(){
-      this.bitcoinControl  = {}
+      this.bitcoinControl = {}
+      this.brazilExchanges = []
 
       this.startBot()
       this.messagesDefault()
@@ -31,6 +31,15 @@ class Bot {
       this.keyboardInitial()
     )
   }
+
+  async keyboardBrazilExchanges () {
+    const keys = await brazil.getExchangesBrazil()
+    keys.push('< Voltar')
+    this.brazilExchanges = keys
+
+    this.messagesDefault()
+    return Markup.keyboard(keys).resize().extra()
+}
 
   startBot () {
     telegram.start(ctx => {
@@ -55,15 +64,15 @@ class Bot {
         ctx.reply(`Valor da última transação na Bitstamp: ${this.bitcoinControl.lastValue}`, this.keyboardInitial())
     })
 
-    telegram.hears('Brasil Exchanges', ctx => {
-        ctx.reply('Selecione Alguma Exchange no teclado de opções!', brazil.keyboardBrazilExchanges())
+    telegram.hears('Brasil Exchanges', async ctx => {
+        ctx.reply('Selecione Alguma Exchange no teclado de opções!', await this.keyboardBrazilExchanges())
     })
 
-    telegram.hears(brazil.exchanges, async ctx => {
+    telegram.hears(this.brazilExchanges, async ctx => {
       try{
           const res = await brazil.getBasicDataFromExchange(ctx.match)
-          ctx.replyWithHTML(`Ultimos Valores na Exchange ${ctx.match}: \n\n Compra: ${res.BuyPrice} \n Venda: ${res.SellPrice} \n Ultima Transação: <code>${res.Last}</code>\n Volume: ${res.Vol} \n <pre>Variação: ${res.LastVariation}% </pre>`,
-          brazil.keyboardBrazilExchanges()
+
+          ctx.replyWithHTML(`Ultimos Valores na Exchange ${ctx.match}: \n\n Compra: ${res.buyPrice} \n Venda: ${res.sellPrice} \n Ultima Transação: <code>${res.last}</code>\n Volume: ${res.vol} \n <pre>Variação: ${res.lastVariation}% </pre>`,
           )
       } catch (error){
           ctx.reply(`A api da exchange ${ctx.match} está temporarimante indisponivel tente novamente mais tarde`)

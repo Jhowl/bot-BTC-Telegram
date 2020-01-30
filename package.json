@@ -4,6 +4,7 @@
   "description": "",
   "main": "bot.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,5 +13,8 @@
   "dependencies": {
     "axios": "^0.18.0",
     "telegraf": "3.17.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
   }
 }

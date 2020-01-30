@@ -1,47 +1,33 @@
 'use strict'
 
-const axios  = require('axios')
+const axios = require('axios')
 const Markup = require('telegraf/markup')
+const env = require('./.env')
 
-class Brazil {
 
-    constructor() {
-        this.urlConsulta = 'http://watcher.foxbit.com.br/api/Ticker'
-    
-        this.exchanges = [
-            '3xBit',
-            'BitBlue',
-            'BitcoinToYou',
-            'BitcoinTrade',
-            'Brabex',
-            'BrasilBitcoin',
-            'Braziliex',
-            'BtcBolsa',
-            'CitCoin',
-            'Coin2001',
-            'CryptoMkt',
-            'FlowBtc',
-            'Foxbit',
-            'MercadoBitcoin',
-            'OmniTrade',
-            'PagCripto',
-            'Profitfy',
-            'TemBtc',
-            'TrocaNinja',
-            'Walltime',
-        ]
-    }
+ const Brazil = {
+  // constructor() {
+  //     this.env.urlConsulta = 'https://watcher.foxbit.com.br/api/Ticker'
+  //     this.exchanges = []
+  //     this.getExchangesBrazil();
+  // }
 
-    async getBasicDataFromExchange(name) {
-        const res = await axios.get(this.urlConsulta + '?exchange=' + name)
-        return res.data
-    }
+  async getExchangesBrazil() {
+    const res = await axios.get(env.urlConsulta)
+    const exchanges = []
+    res.data.forEach(element => {
+      if(element.currency === "BRLXBTC")
+        exchanges.push(element.exchange)
+    });
 
-    keyboardBrazilExchanges () {
-        const keys = this.exchanges.slice()
-        keys.push('< Voltar')
-        return Markup.keyboard(keys).resize().extra()
-    }
+    return exchanges
+  },
+
+  async getBasicDataFromExchange(name) {
+    console.log(env.urlConsulta + '?exchange=' + name)
+      const res = await axios.get(env.urlConsulta + '?exchange=' + name)
+      return res.data
+  },
 }
 
 module.exports = Brazil
