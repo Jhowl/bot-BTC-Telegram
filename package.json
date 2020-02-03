@@ -11,8 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0",
-    "telegraf": "3.17.3"
+    "axios": "^0.19.2",
+    "telegraf": "3.36.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"
