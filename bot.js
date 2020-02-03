@@ -1,9 +1,10 @@
 'use strict'
 
-const env      = require('./.env')
+const env = require('./.env')
 const Telegraf = require('telegraf')
-const Markup   = require('telegraf/markup')
-const brazil   = require( './brazil' )
+const Markup = require('telegraf/markup')
+const brazil = require( './brazil' )
+const axios = require('axios')
 
 const telegram = new Telegraf(env.token)
 
@@ -11,20 +12,32 @@ class Bot {
   constructor(){
       this.bitcoinControl = {}
       this.brazilExchanges = []
+      this.bitcoinControl.unit = ''
 
       this.startBot()
       this.messagesDefault()
   }
 
-  keyboardInitial () {
+  async verifyChangesBTC() {
+    const res  = await axios.get('https://www.bitstamp.net/api/ticker/')
+    const unit = /\d/.exec(/\d{3}[.]/.exec(res.data.last)[0])[0]
+
+    this.bitcoinControl.lastValue = res.data.last
+
+    if(this.bitcoinControl.unit == unit){
+        return
+    }
+
+    this.sendMessages(`BTC Saiu da casa ${this.bitcoinControl.unit}00 \n Agora está na casa dos ${unit}00: \n valor atual ${res.data.last}`)
+
+    this.bitcoinControl.unit = unit
+  }
+
+  keyboardInitial() {
     return Markup.keyboard([['BTC Bitstamp'], ['Brasil Exchanges']]).resize().extra()
   }
 
-  setLastTransactionValue (value) {
-    this.bitcoinControl.lastValue = value
-  }
-
-  sendMessages (message) {
+  sendMessages(message) {
     telegram.telegram.sendMessage(
       env.id,
       message,
@@ -32,7 +45,7 @@ class Bot {
     )
   }
 
-  async keyboardBrazilExchanges () {
+  async keyboardBrazilExchanges() {
     const keys = await brazil.getExchangesBrazil()
     keys.push('< Voltar')
     this.brazilExchanges = keys
