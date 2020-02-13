@@ -3,34 +3,19 @@
 const env = require('./.env')
 const Telegraf = require('telegraf')
 const Markup = require('telegraf/markup')
-const brazil = require( './brazil' )
-const axios = require('axios')
+const btcBrl = require( './btc/btcBrl.js' )
+const btcUsd = require( './btc/btcUsd.js' )
 
 const telegram = new Telegraf(env.token)
 
 class Bot {
   constructor(){
-      this.bitcoinControl = {}
-      this.brazilExchanges = []
-      this.bitcoinControl.unit = ''
-
       this.startBot()
+      this.brazilExchanges = []
+
+      // btcBrl(telegram)
+      this.btcUsd = new btcUsd(telegram)
       this.messagesDefault()
-  }
-
-  async verifyChangesBTC() {
-    const res  = await axios.get('https://www.bitstamp.net/api/ticker/')
-    const unit = /\d/.exec(/\d{3}[.]/.exec(res.data.last)[0])[0]
-
-    this.bitcoinControl.lastValue = res.data.last
-
-    if(this.bitcoinControl.unit == unit){
-        return
-    }
-
-    this.sendMessages(`BTC Saiu da casa ${this.bitcoinControl.unit}00 \n Agora está na casa dos ${unit}00: \n valor atual ${res.data.last}`)
-
-    this.bitcoinControl.unit = unit
   }
 
   keyboardInitial() {
@@ -41,18 +26,22 @@ class Bot {
     telegram.telegram.sendMessage(
       env.id,
       message,
-      this.keyboardInitial()
+      // this.keyboardInitial()
     )
   }
 
+  async verifyChanges () {
+    await this.btcUsd.verifyChangesBTC(this.sendMessages)
+  }
+
   async keyboardBrazilExchanges() {
-    const keys = await brazil.getExchangesBrazil()
+    const keys = await btcBrl.getExchangesBtcBrl()
     keys.push('< Voltar')
     this.brazilExchanges = keys
 
     this.messagesDefault()
     return Markup.keyboard(keys).resize().extra()
-}
+  }
 
   startBot () {
     telegram.start(ctx => {
@@ -74,7 +63,7 @@ class Bot {
 
   messagesDefault () {
     telegram.hears('BTC Bitstamp', ctx => {
-        ctx.reply(`Valor da última transação na Bitstamp: ${this.bitcoinControl.lastValue}`, this.keyboardInitial())
+        ctx.reply(`Valor da última transação na Bitstamp: ${this.btcUsd.bitcoinControl.lastValue}`, this.keyboardInitial())
     })
 
     telegram.hears('Brasil Exchanges', async ctx => {
@@ -83,7 +72,7 @@ class Bot {
 
     telegram.hears(this.brazilExchanges, async ctx => {
       try{
-          const res = await brazil.getBasicDataFromExchange(ctx.match)
+          const res = await btcBrl.getBasicDataFromExchange(ctx.match)
 
           ctx.replyWithHTML(`Ultimos Valores na Exchange ${ctx.match}: \n\n Compra: ${res.buyPrice} \n Venda: ${res.sellPrice} \n Ultima Transação: <code>${res.last}</code>\n Volume: ${res.vol} \n <pre>Variação: ${res.lastVariation}% </pre>`,
           )

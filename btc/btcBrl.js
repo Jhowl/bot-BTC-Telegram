@@ -1,18 +1,17 @@
 'use strict'
 
 const axios = require('axios')
-const Markup = require('telegraf/markup')
-const env = require('./.env')
+const env = require('./../.env')
 
 
- const Brazil = {
+ const btcBrl = {
   // constructor() {
   //     this.env.urlConsulta = 'https://watcher.foxbit.com.br/api/Ticker'
   //     this.exchanges = []
-  //     this.getExchangesBrazil();
+  //     this.getExchangesBtcBrl();
   // }
 
-  async getExchangesBrazil() {
+  async getExchangesBtcBrl() {
     const res = await axios.get(env.urlConsulta)
     const exchanges = []
     res.data.forEach(element => {
@@ -30,4 +29,4 @@ const env = require('./.env')
   },
 }
 
-module.exports = Brazil
+module.exports = btcBrl

@@ -5,10 +5,10 @@ bot = new Robot();
 setInterval(async () => {
   try{
 
-    bot.verifyChangesBTC()
+    bot.verifyChanges()
 
   } catch (error){
-    console.log(error)
+    console.error(error)
     return
   }
 }, 8000)
