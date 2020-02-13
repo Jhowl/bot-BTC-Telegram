@@ -14,7 +14,7 @@ class Bot {
       this.brazilExchanges = []
 
       // btcBrl(telegram)
-      this.btcUsd = new btcUsd(telegram)
+      this.btcUsd = new btcUsd()
       this.messagesDefault()
   }
 

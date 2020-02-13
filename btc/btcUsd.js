@@ -1,11 +1,9 @@
 const axios = require('axios')
 
 class btcUsd {
-  constructor(telegram) {
+  constructor() {
     this.bitcoinControl = {}
     this.bitcoinControl.unit = ''
-
-    this.telegram = telegram
   }
 
   async verifyChangesBTC(callback) {
