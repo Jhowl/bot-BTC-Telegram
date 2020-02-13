@@ -16,9 +16,9 @@ class btcUsd {
         return false
     }
 
-    this.bitcoinControl.unit = unit
-
     callback(`BTC Saiu da casa ${this.bitcoinControl.unit}00 \n Agora está na casa dos ${unit}00: \n valor atual ${res.data.last}`)
+
+    this.bitcoinControl.unit = unit
   }
 
 }

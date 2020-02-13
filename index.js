@@ -5,7 +5,7 @@ bot = new Robot();
 setInterval(async () => {
   try{
 
-    bot.verifyChanges()
+    bot.watchChanges()
 
   } catch (error){
     console.error(error)

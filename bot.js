@@ -5,6 +5,7 @@ const Telegraf = require('telegraf')
 const Markup = require('telegraf/markup')
 const btcBrl = require( './btc/btcBrl.js' )
 const btcUsd = require( './btc/btcUsd.js' )
+const usd = require('./usd')
 
 const telegram = new Telegraf(env.token)
 
@@ -15,6 +16,7 @@ class Bot {
 
       // btcBrl(telegram)
       this.btcUsd = new btcUsd()
+      this.usd = new usd()
       this.messagesDefault()
   }
 
@@ -30,8 +32,15 @@ class Bot {
     )
   }
 
-  async verifyChanges () {
-    await this.btcUsd.verifyChangesBTC(this.sendMessages)
+  async watchChanges () {
+    try{
+      await Promise.all([
+        this.btcUsd.verifyChangesBTC(this.sendMessages),
+        this.usd.verifyChangesUsd(this.sendMessages)
+      ])
+    } catch (error){
+     console.error(error)
+    }
   }
 
   async keyboardBrazilExchanges() {
