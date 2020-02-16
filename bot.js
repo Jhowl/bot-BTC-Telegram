@@ -5,6 +5,7 @@ const Telegraf = require('telegraf')
 const Markup = require('telegraf/markup')
 const btcBrl = require( './btc/btcBrl.js' )
 const btcUsd = require( './btc/btcUsd.js' )
+const usd = require('./usd')
 
 const telegram = new Telegraf(env.token)
 
@@ -12,14 +13,13 @@ class Bot {
   constructor(){
       this.startBot()
       this.brazilExchanges = []
-
-      // btcBrl(telegram)
       this.btcUsd = new btcUsd()
+      this.usd = new usd()
       this.messagesDefault()
   }
 
   keyboardInitial() {
-    return Markup.keyboard([['BTC Bitstamp'], ['Brasil Exchanges']]).resize().extra()
+    return Markup.keyboard([['BTC Bitstamp'], ['Brasil Exchanges'], ['Valor Dolar']]).resize().extra()
   }
 
   sendMessages(message) {
@@ -30,8 +30,15 @@ class Bot {
     )
   }
 
-  async verifyChanges () {
-    await this.btcUsd.verifyChangesBTC(this.sendMessages)
+  async watchChanges () {
+    try{
+      await Promise.all([
+        this.btcUsd.verifyChangesBTC(this.sendMessages),
+        this.usd.verifyChangesUsd(this.sendMessages)
+      ])
+    } catch (error){
+     console.error(error)
+    }
   }
 
   async keyboardBrazilExchanges() {
@@ -68,6 +75,10 @@ class Bot {
 
     telegram.hears('Brasil Exchanges', async ctx => {
         ctx.reply('Selecione Alguma Exchange no teclado de opções!', await this.keyboardBrazilExchanges())
+    })
+
+    telegram.hears('Valor Dolar', async ctx => {
+      ctx.reply(`Valor do dolar: ${this.usd.lastValue}`, this.keyboardInitial())
     })
 
     telegram.hears(this.brazilExchanges, async ctx => {
