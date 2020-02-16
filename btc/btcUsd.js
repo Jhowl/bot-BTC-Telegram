@@ -1,4 +1,5 @@
 const axios = require('axios')
+const services = require('./../config')
 
 class btcUsd {
   constructor() {
@@ -7,7 +8,7 @@ class btcUsd {
   }
 
   async verifyChangesBTC(callback) {
-    const res  = await axios.get('https://www.bitstamp.net/api/ticker/')
+    const res  = await axios.get(services.btcBitstamp)
     const unit = /\d/.exec(/\d{3}[.]/.exec(res.data.last)[0])[0]
 
     this.bitcoinControl.lastValue = res.data.last
@@ -16,9 +17,9 @@ class btcUsd {
         return false
     }
 
-    this.bitcoinControl.unit = unit
-
     callback(`BTC Saiu da casa ${this.bitcoinControl.unit}00 \n Agora está na casa dos ${unit}00: \n valor atual ${res.data.last}`)
+
+    this.bitcoinControl.unit = unit
   }
 
 }
