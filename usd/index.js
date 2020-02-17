@@ -9,7 +9,7 @@ class Usd {
   }
 
   async verifyChangesUsd(callback) {
-    const usd = await this.getDollarInfo()
+    const usd = await this.getCurrencyInfo('usd')
     const [ unit ] = /\d\d/.exec(usd.bid)
 
     this.lastValue = usd.bid
@@ -25,14 +25,12 @@ class Usd {
     this.usd.unit = unit
   }
 
-  async getDollarInfo() {
-    const result = await axios.get(`${services.restCurrencies}/USD`)
-    console.log(`${services.restCurrencies}/USD`)
-    const [ usd ] = result.data
+  async getCurrencyInfo(name) {
+    const result = await axios.get(`${services.restCurrencies}/${name}`)
+    const [ currency ] = result.data
 
-    return usd
+    return currency
   }
-
 }
 
 module.exports = Usd

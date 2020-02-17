@@ -7,13 +7,9 @@ const services = require('./../config')
 
   async getExchangesBtcBrl() {
     const res = await axios.get(services.btcBrazil)
-    const exchanges = []
-    res.data.forEach(element => {
-      if(element.currency === "BRLXBTC")
-        exchanges.push(element.exchange)
-    });
+    const exchanges = res.data.map(item => (item.currency === "BRLXBTC") ? item.exchange : '');
 
-    return exchanges
+    return exchanges.filter(item => item ? item : false)
   },
 
   async getBasicDataFromExchange(name) {
