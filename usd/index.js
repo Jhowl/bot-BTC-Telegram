@@ -1,5 +1,5 @@
-const axios = require('axios')
-const services = require('./../config')
+import axios from 'axios'
+import services from './../config/index.js'
 
 class Usd {
   constructor() {
@@ -33,4 +33,4 @@ class Usd {
   }
 }
 
-module.exports = Usd
+export default Usd

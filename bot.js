@@ -1,14 +1,12 @@
-'use strict'
+import { Telegraf, Markup } from 'telegraf'
+import { config } from 'dotenv'
+import btcBrl from  './btc/btcBrl.js'
+import btcUsd from  './btc/btcUsd.js'
+import usd from './usd/index.js'
 
-const env = require('./.env')
-const Telegraf = require('telegraf')
-const Markup = require('telegraf/markup')
-const btcBrl = require( './btc/btcBrl.js' )
-const btcUsd = require( './btc/btcUsd.js' )
-const usd = require('./usd')
+config()
 
-const telegram = new Telegraf(env.token)
-
+const bot = new Telegraf(process.env.token)
 class Bot {
   constructor(){
       this.startBot()
@@ -19,12 +17,12 @@ class Bot {
   }
 
   keyboardInitial() {
-    return Markup.keyboard([['BTC Bitstamp'], ['Brasil Exchanges'], ['Valor Dolar']]).resize().extra()
+    return Markup.keyboard([['BTC Bitstamp'], ['Brasil Exchanges'], ['Valor Dolar']])
   }
 
   sendMessages(message) {
-    telegram.telegram.sendMessage(
-      env.id,
+    bot.telegram.sendMessage(
+      process.env.id,
       message,
       // this.keyboardInitial()
     )
@@ -47,41 +45,36 @@ class Bot {
     this.brazilExchanges = keys
 
     this.messagesDefault()
-    return Markup.keyboard(keys).resize().extra()
+    return Markup.keyboard(keys)
   }
 
   startBot () {
-    telegram.start(ctx => {
+    bot.start(ctx => {
       const from = ctx.update.message.from
 
-      if(from.id != env.id){
-          ctx.reply(`Sinto muito mais não falo com vc!, ${from.first_name}!`)
-          return;
-      }
-
       ctx.reply(
-          `Ao seu dispor, mano loko!!, ${from.first_name}!\nO que vc quer hoje meu consagrado?`,
+          `Bot for wath btc is started ${from.first_name}!\n`,
           this.keyboardInitial()
       )
     })
 
-    telegram.startPolling()
+    bot.launch()
   }
 
   messagesDefault () {
-    telegram.hears('BTC Bitstamp', ctx => {
+    bot.hears('BTC Bitstamp', ctx => {
         ctx.reply(`Valor da última transação na Bitstamp: ${this.btcUsd.bitcoinControl.lastValue}`, this.keyboardInitial())
     })
 
-    telegram.hears('Brasil Exchanges', async ctx => {
+    bot.hears('Brasil Exchanges', async ctx => {
         ctx.reply('Selecione Alguma Exchange no teclado de opções!', await this.keyboardBrazilExchanges())
     })
 
-    telegram.hears('Valor Dolar', async ctx => {
+    bot.hears('Valor Dolar', async ctx => {
       ctx.reply(`Valor do dolar: ${this.usd.lastValue}`, this.keyboardInitial())
     })
 
-    telegram.hears(this.brazilExchanges, async ctx => {
+    bot.hears(this.brazilExchanges, async ctx => {
       try{
           const res = await btcBrl.getBasicDataFromExchange(ctx.match)
 
@@ -92,7 +85,7 @@ class Bot {
       }
     })
 
-    telegram.hears('< Voltar', ctx => {
+    bot.hears('< Voltar', ctx => {
         ctx.reply(
             'Escolha Entre as opções do Teclado',
             this.keyboardInitial()
@@ -101,4 +94,4 @@ class Bot {
   }
 }
 
-module.exports = Bot
+export default Bot

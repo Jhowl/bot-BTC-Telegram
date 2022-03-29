@@ -1,6 +1,6 @@
-const Robot = require('./bot')
+import Robot from './bot.js'
 
-bot = new Robot();
+const bot = new Robot();
 
 setInterval(async () => {
   try{

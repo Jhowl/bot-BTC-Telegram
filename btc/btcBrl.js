@@ -1,7 +1,7 @@
 'use strict'
 
-const axios = require('axios')
-const services = require('./../config')
+import axios from 'axios'
+import services from './../config/index.js'
 
  const btcBrl = {
 
@@ -18,4 +18,4 @@ const services = require('./../config')
   },
 }
 
-module.exports = btcBrl
+export default btcBrl
