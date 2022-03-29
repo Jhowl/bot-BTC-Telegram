@@ -11,10 +11,6 @@ class btcUsd {
     const res  = await axios.get(services.btcBitstamp)
     const unit = /\d/.exec(/\d{3}[.]/.exec(res.data.last)[0])[0]
 
-    // console.log(this.bitcoinControl.unit)
-    // console.log(unit)
-    // console.log(this.bitcoinControl.unit == unit)
-
     this.bitcoinControl.lastValue = res.data.last
 
     if(this.bitcoinControl.unit == unit){
