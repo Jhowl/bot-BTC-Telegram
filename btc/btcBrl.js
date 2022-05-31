@@ -3,8 +3,7 @@
 import axios from 'axios'
 import services from './../config/index.js'
 
- const btcBrl = {
-
+const btcBrl = {
   async getExchangesBtcBrl() {
     const res = await axios.get(services.btcBrazil)
     const exchanges = res.data.map(item => (item.currency === "BRLXBTC") ? item.exchange : '');
@@ -13,8 +12,8 @@ import services from './../config/index.js'
   },
 
   async getBasicDataFromExchange(name) {
-      const res = await axios.get(services.btcBrazil + '?exchange=' + name)
-      return res.data
+    const res = await axios.get(services.btcBrazil + '?exchange=' + name)
+    return res.data
   },
 }
 

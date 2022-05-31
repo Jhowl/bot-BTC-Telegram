@@ -10,15 +10,15 @@ class Usd {
 
   async verifyChangesUsd(callback) {
     const usd = await this.getCurrencyInfo('usd')
-    const [ unit ] = /\d\d/.exec(usd.bid)
+    const [unit] = /\d\d/.exec(usd.bid)
 
     this.lastValue = usd.bid
 
-    if(this.usd.unit == unit){
-        return false
+    if (this.usd.unit == unit) {
+      return false
     }
 
-    const variation = ( unit > this.usd.unit ) ? 'Dolar subiu de' : 'Dolar caiu de'
+    const variation = (unit > this.usd.unit) ? 'Dolar subiu de' : 'Dolar caiu de'
 
     callback(`${variation} ${this.usd.unit} : \n para valor atual ${usd.bid}`)
 
@@ -27,7 +27,7 @@ class Usd {
 
   async getCurrencyInfo(name) {
     const result = await axios.get(`${services.restCurrencies}/${name}`)
-    const [ currency ] = result.data
+    const [currency] = result.data
 
     return currency
   }
